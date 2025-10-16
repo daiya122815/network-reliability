@@ -29,11 +29,13 @@ class FordFulkerson:
         for nxt in self.g[cur]:
             if not visited[nxt.to] and nxt.cap > 0:
                 flow = self.dfs(visited,nxt.to,t,min(f,nxt.cap))
-                # cur == tで更新するflowが確定されたのちに実行される
-                if flow > 0:
-                    nxt.cap -= flow
-                    self.g[nxt.to][nxt.rev].cap += flow
-                    return flow
+                # cur == tで更新するフローが確定されたのちに実行される
+                if flow == 0:
+                    continue
+                nxt.cap -= flow
+                self.g[nxt.to][nxt.rev].cap += flow
+                return flow
+        # 更新可能フロー（すべての頂点を辿り、更新フローが0）が見つからなくなった場合の返り値
         return 0
     
     # 最大流
