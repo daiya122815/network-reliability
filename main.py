@@ -2,6 +2,7 @@ import sys
 
 # 同階層のファイルの読み込み
 from ford_fulkerson import *
+from zdd_ford_fulkerson import *
 
 # 実行
 def ford_fulkerson():
@@ -29,7 +30,34 @@ def ford_fulkerson():
     ans = ff.max_flow(s,t)
     print(ans)
 
+def zdd_ford_fulkerson():
+    n,m = map(int,input().split())
+    zff = ZddFordFulkerson(n)
+
+    universe = []
+    for _ in range(m):
+        a,b,c = map(int,input().split())
+        a -= 1
+        b -= 1
+        zff.add_edge(a,b,c)
+
+        universe.append((a,b))
+        universe.append((b,a))
+
+    # universeが辺（v1,v2）でないといけないから、今のedge(a,b,c)の形から変形して渡したい
+    # 有向グラフセット生成
+    DGS.set_universe(universe)
+    
+    # stパスを列挙（増加道）
+    s,t = 0, n-1
+    paths = DGS.directed_st_paths(s,t)
+        
+    ans = zff.max_flow(paths)
+    print(ans)
+
 def main():
-    ford_fulkerson()
+    # ford_fulkerson()
+    zdd_ford_fulkerson()
+
 if __name__ == "__main__":
     main()

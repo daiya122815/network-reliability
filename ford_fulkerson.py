@@ -40,7 +40,7 @@ class FordFulkerson:
     
     # 最大流
     def max_flow(self,s,t):
-        ans = 0
+        mf = 0
         INF = float("inf")
         n = len(self.g)
         # 更新可能フローが見つからなくなるまで実行
@@ -49,5 +49,5 @@ class FordFulkerson:
             flow = self.dfs(visited,s,t,INF)
             if flow == 0:
                 break
-            ans += flow
-        return ans
+            mf += flow
+        return mf
