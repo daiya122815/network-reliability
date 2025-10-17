@@ -8,7 +8,7 @@ class Edge:
     cap : int
     rev : int
 
-class ZddFordFulkerson:
+class ZddMaxFlow:
     def __init__(self,n):
         self.g = [[] for _ in range(n)]
         self.edge_map = {} # 辺をキーとする構造体Edge参照辞書

@@ -2,7 +2,7 @@ import sys
 
 # 同階層のファイルの読み込み
 from ford_fulkerson import *
-from zdd_ford_fulkerson import *
+from zdd_max_flow import *
 
 # 実行
 def ford_fulkerson():
@@ -30,16 +30,16 @@ def ford_fulkerson():
     ans = ff.max_flow(s,t)
     print(ans)
 
-def zdd_ford_fulkerson():
+def zdd_max_flow():
     n,m = map(int,input().split())
-    zff = ZddFordFulkerson(n)
+    zmf = ZddMaxFlow(n)
 
     universe = []
     for _ in range(m):
         a,b,c = map(int,input().split())
         a -= 1
         b -= 1
-        zff.add_edge(a,b,c)
+        zmf.add_edge(a,b,c)
 
         universe.append((a,b))
         universe.append((b,a))
@@ -52,12 +52,12 @@ def zdd_ford_fulkerson():
     s,t = 0, n-1
     paths = DGS.directed_st_paths(s,t)
         
-    ans = zff.max_flow(paths)
+    ans = zmf.max_flow(paths)
     print(ans)
 
 def main():
     # ford_fulkerson()
-    zdd_ford_fulkerson()
+    zdd_max_flow()
 
 if __name__ == "__main__":
     main()
