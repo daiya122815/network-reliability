@@ -6,19 +6,20 @@ class Edge:
     to : int
     cap : int
     rev : int
+    forward : bool
 
 class FordFulkerson:
     # グラフの隣接リスト（インスタンス変数）
     def __init__(self,n):
-        self.g = [[] for _ in range(n)]
+        self.rg = [[] for _ in range(n)]
     
     # 辺の追加
     def add_edge(self,a,b,c):
         # 正辺に逆辺のインデックス、逆辺に正辺のインデックスを追加
-        rev_index = len(self.g[b])
-        index = len(self.g[a])
-        self.g[a].append(Edge(b,c,rev_index))
-        self.g[b].append(Edge(a,0,index))
+        rev_index = len(self.rg[b])
+        index = len(self.rg[a])
+        self.rg[a].append(Edge(b,c,rev_index,True))
+        self.rg[b].append(Edge(a,0,index,False))
 
     # s,tまでのパスを探索し、流せる分だけフローを流す
     def dfs(self,visited,cur,t,f):
@@ -26,14 +27,14 @@ class FordFulkerson:
         if cur == t:
             return f
         
-        for nxt in self.g[cur]:
+        for nxt in self.rg[cur]:
             if not visited[nxt.to] and nxt.cap > 0:
                 flow = self.dfs(visited,nxt.to,t,min(f,nxt.cap))
                 # cur == tで更新するフローが確定されたのちに実行される
                 if flow == 0:
                     continue
                 nxt.cap -= flow
-                self.g[nxt.to][nxt.rev].cap += flow
+                self.rg[nxt.to][nxt.rev].cap += flow
                 return flow
         # 更新可能フロー（すべての頂点を辿り、更新フローが0）が見つからなくなった場合の返り値
         return 0
@@ -42,7 +43,7 @@ class FordFulkerson:
     def max_flow(self,s,t):
         mf = 0
         INF = float("inf")
-        n = len(self.g)
+        n = len(self.rg)
         # 更新可能フローが見つからなくなるまで実行
         while True:
             visited = [False]*n
@@ -51,3 +52,6 @@ class FordFulkerson:
                 break
             mf += flow
         return mf
+    
+    def return_residual_graph(self):
+        return self.rg
