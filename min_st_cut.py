@@ -26,13 +26,18 @@ class MinStCut:
 
 
     # sからと到達可能頂点集合をS、そうでない頂点集合をTとし、それを返す関数
-    # def recursive_dfs(self,cur,visited):
-    #     visited[cur] = True
-    #     nxt = self.forward_graph[cur]
-    #     if not visited[nxt] and self.forward_graph[cur][nxt].cap > 0:
-    #         visited[nxt] = True
-    #         self.recursive_dfs(self.forward_graph,nxt,visited)
-    #     return 
+    def recursive_dfs(self,cur,visited,s,S):
+        visited[cur] = True
+        for nxt,cap in self.forward_graph[cur]:
+            if not visited[nxt] and cap > 0:
+                visited[nxt] = True
+                S.add(nxt)
+                self.recursive_dfs(nxt,visited,s,S)
+        if cur == s:
+            n = len(self.forward_graph)
+            T = set(range(n)) - S
+            return S,T
+        return
     
     def stack_dfs(self,s):
         S,T = {s},set()

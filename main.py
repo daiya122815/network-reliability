@@ -146,7 +146,11 @@ def main():
     l = msc.forward_edges(arg)
     print(l)
     g = msc.build_forward_graph(l)
-    print(g)
+    print("forward_graph =",g)
+    visited = [False]*len(g)
+    s = 0
+    S = {s}
+    print(msc.recursive_dfs(0,visited,s,S))
     print(msc.stack_dfs(0))
     print(msc.bfs(0))
     print(msc.min_st_cut_edges(0))
