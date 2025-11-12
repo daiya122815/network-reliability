@@ -47,7 +47,7 @@ from min_st_cut import*
 # 最大流
 def ford_fulkerson(n,m,edges):
 
-    sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
+    # sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
     
     ff = FordFulkerson(n) # インスタンス生成
     
