@@ -93,11 +93,12 @@ class MinStCut:
     #             if b in S:
     #                 min_st_cut_edges.add((a,b))
     #     return min_st_cut_edges
-    def min_st_cut_edges(self, s):
-        S, T = self.stack_dfs(s)
-        cut_edges = set()
-        for u in S:
-            for edge in self.arg[u]:
+    def min_st_cut_edges(self,s):
+        # S,T = self.stack_dfs(s)
+        S,T = self.bfs(s)
+        min_st_cut_edges = set()
+        for v in S:
+            for edge in self.arg[v]:
                 if edge.forward and edge.to in T and edge.cap == 0:
-                    cut_edges.add((u, edge.to))
-        return cut_edges
+                    min_st_cut_edges.add((v,edge.to))
+        return min_st_cut_edges
