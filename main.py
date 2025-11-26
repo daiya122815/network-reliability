@@ -12,6 +12,7 @@ from copy import deepcopy # オブジェクトのコピー
 from ford_fulkerson import *
 from zdd_max_flow import *
 from min_st_cut import *
+from scc import *
 
 # グラフ生成
 # def generate_graph(n):
@@ -221,9 +222,9 @@ def main():
     # for a,b,capacity in edges :
     #     g.add_edge(a,b,capacity=capacity)
 
-    mf,brg,arg = ford_fulkerson(n,m,edges)
+    # mf,brg,arg = ford_fulkerson(n,m,edges)
     # mf,st_paths = zdd_max_flow(n,edges)
-    print("max_flow =",mf)
+    # print("max_flow =",mf)
     # print("st_paths.len() =",st_paths.len())
     
     # stパスの各辺の出現回数
@@ -240,20 +241,40 @@ def main():
     # min_st_cut_edges = min_st_cut(mf,arg)
     # print(min_st_cut_edges)
     
-    msc = MinStCut(mf,arg)
-    l = msc.forward_edges(arg)
+    # msc = MinStCut(mf,arg)
+    # l = msc.forward_edges(arg)
     # print(l)
-    g = msc.build_forward_graph(l)
+    # g = msc.build_forward_graph(l)
     # print("forward_graph =",g)
-    visited = [False]*len(g)
-    s = 9
-    S = {s}
-    print(msc.recursive_dfs(0,visited,s,S))
-    print(msc.stack_dfs(s))
-    print(msc.bfs(s))
-    print(msc.min_st_cut_edges(s))
+    # visited = [False]*len(g)
+    # s = 9
+    # S = {s}
+    # print(msc.recursive_dfs(0,visited,s,S))
+    # print(msc.stack_dfs(s))
+    # print(msc.bfs(s))
+    # print(msc.min_st_cut_edges(s))
 
     # draw_graph(g)
+
+
+    # edges = [
+    #     (0,1),
+    #     (1,2),
+    #     (2,0),
+    #     (2,3),
+    #     (3,4),
+    #     (4,3),
+    #     (4,5),
+    #     (4,6)
+    # ]
+    # n = 7
+    g = [[] for _ in range(n)]
+    for edge in edges:
+        u,v,_ = edge
+        g[u].append(v)
+    scc = Scc(g)
+    
+    print(scc.decompose())
 
 if __name__ == "__main__":
     main()
