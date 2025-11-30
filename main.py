@@ -14,6 +14,8 @@ from zdd_max_flow import *
 from min_st_cut import *
 from scc import *
 
+# sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
+
 # グラフ生成
 # def generate_graph(n):
 
@@ -46,22 +48,18 @@ from scc import *
 #     plt.show()
 
 # 最大流
-def ford_fulkerson(n,m,edges):
-
-    # sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
+def ff_max_flow(n,edges):
     
     ff = FordFulkerson(n) # インスタンス生成
-    
     # 各辺の入力
     for a,b,c in edges:
         ff.add_edge(a,b,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
-    
     # グラフの表示
     # print(vars(ff))
      
     brg = deepcopy(ff.return_residual_graph()) # オブジェクトを新たな辺数にコピー
     s,t = 9, 51
-    mf = ff.max_flow(s,t)
+    mf = ff.max_flow(s, t)
     arg = deepcopy(ff.return_residual_graph())
     
     return mf,brg,arg
@@ -222,9 +220,9 @@ def main():
     # for a,b,capacity in edges :
     #     g.add_edge(a,b,capacity=capacity)
 
-    # mf,brg,arg = ford_fulkerson(n,m,edges)
+    mf,brg,arg = ff_max_flow(n, edges)
+    print("max_flow =",mf)
     # mf,st_paths = zdd_max_flow(n,edges)
-    # print("max_flow =",mf)
     # print("st_paths.len() =",st_paths.len())
     
     # stパスの各辺の出現回数
