@@ -239,18 +239,18 @@ def main():
     # min_st_cut_edges = min_st_cut(mf,arg)
     # print(min_st_cut_edges)
     
-    # msc = MinStCut(mf,arg)
+    msc = MinStCut(mf,arg)
     # l = msc.forward_edges(arg)
     # print(l)
     # g = msc.build_forward_graph(l)
     # print("forward_graph =",g)
     # visited = [False]*len(g)
-    # s = 9
+    s = 9
     # S = {s}
     # print(msc.recursive_dfs(0,visited,s,S))
     # print(msc.stack_dfs(s))
-    # print(msc.bfs(s))
-    # print(msc.min_st_cut_edges(s))
+    print(msc.bfs(s))
+    print(msc.min_st_cut_edges(s))
 
     # draw_graph(g)
 

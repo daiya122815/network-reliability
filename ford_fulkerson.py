@@ -42,17 +42,19 @@ class FordFulkerson:
         return 0
     
     # 最大流
-    def max_flow(self,s,t):
+    def max_flow(self, s:int, t:int):
+        n = len(self.rg)
         mf = 0
         INF = float("inf")
-        n = len(self.rg)
+        
         # 更新可能フローが見つからなくなるまで実行
         while True:
-            visited = [False]*n
-            flow = self.dfs(visited,s,t,INF)
+            visited = [False] * n
+            flow = self.dfs(visited, s, t, INF)
             if flow == 0:
                 break
             mf += flow
+        
         return mf
     
     def return_residual_graph(self):
