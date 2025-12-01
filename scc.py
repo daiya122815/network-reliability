@@ -1,3 +1,5 @@
+from collections import deque
+
 class Scc:
     
     def __init__(self,g):
@@ -24,7 +26,7 @@ class Scc:
         
         return component
     
-    def scc_dag(self,components):
+    def scc_dag(self, components:list):
         n = len(self.g)
 
         # 各頂点に連結成分ごとのidを付与
@@ -42,6 +44,34 @@ class Scc:
                     comp_sets[cu].add(cv)
         scc_dag = [sorted(comp) for comp in comp_sets]
         return scc_dag
+    
+    def topological_sort(self, dag:list):
+        n = len(dag)
+        topological_dag = []
+
+        # 入次数
+        indgrees = [0] * n
+        for u in dag:
+            for v in u:
+                indgrees[v] += 1
+        
+        # 入次数が0である頂点をdeqに追加
+        deq = deque()
+        for i in range(n):
+            if indgrees[i] == 0:
+                deq.append(i)
+        
+        while deq:
+            v = deq.popleft()
+
+            for nei in dag[v]:
+                indgrees[nei] -= 1
+                if indgrees[nei] == 0:
+                    deq.append(nei)
+            
+            topological_dag.append(v)
+
+        return topological_dag
     
     def decompose(self):
         n = len(self.g)
@@ -65,11 +95,13 @@ class Scc:
             component = self.scc_dfs(rev_g, v, visited, [])
             components.append(component)
         
-        # 連結成分ごとのdagを取得
+        # 連結成分ごとのDAGを取得
         dag = self.scc_dag(components)
 
-        return components, dag
+        topological_dag = self.topological_sort(dag)
+
+        return components, dag, topological_dag
 
     def strongly_connected_components(self):
-        scc, dag = self.decompose()
-        return scc, dag
+        scc, dag, topological_dag = self.decompose()
+        return scc, dag, topological_dag
