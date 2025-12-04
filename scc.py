@@ -19,7 +19,8 @@ class Scc:
     def scc_dfs(self, rev_g:list, cur:int, visited:list, component:list):
         visited[cur] = True
         component.append(cur)
-        
+
+        # 逆辺からなるグラフを探索
         for nxt in rev_g[cur]:
             if not visited[nxt]:
                 self.scc_dfs(rev_g, nxt, visited, component)
@@ -50,23 +51,23 @@ class Scc:
         topological_dag = []
 
         # 入次数
-        indgrees = [0] * n
+        indegrees = [0] * n
         for u in dag:
             for v in u:
-                indgrees[v] += 1
+                indegrees[v] += 1
         
         # 入次数が0である頂点をdeqに追加
         deq = deque()
         for i in range(n):
-            if indgrees[i] == 0:
+            if indegrees[i] == 0:
                 deq.append(i)
         
         while deq:
             v = deq.popleft()
 
             for nei in dag[v]:
-                indgrees[nei] -= 1
-                if indgrees[nei] == 0:
+                indegrees[nei] -= 1
+                if indegrees[nei] == 0:
                     deq.append(nei)
             
             topological_dag.append(v)
@@ -88,14 +89,14 @@ class Scc:
         
         components = []
         visited = [False] * n
-        # 順序付けと逆順で、逆辺グラフを探索
+        # 順序付けが高い頂点から、逆辺グラフを探索
         for v in reversed(order):
             if visited[v]:
                 continue
             component = self.scc_dfs(rev_g, v, visited, [])
             components.append(component)
         
-        # 連結成分ごとのDAGを取得
+        # 連結成分に縮約したDAGを取得
         dag = self.scc_dag(components)
 
         topological_dag = self.topological_sort(dag)
