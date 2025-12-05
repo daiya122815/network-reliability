@@ -101,126 +101,54 @@ def min_st_cut(after_res_g:list, s:int):
     min_st_cut_edges = msc.min_st_cut_edges(s)
     return min_st_cut_edges
 
-def decompose_scc(g):
-    scc = Scc(g)
+def decompose_scc(after_res_g):
+    scc = Scc(after_res_g)
     scc, dag, topological_dag = scc.decompose()
     return scc, dag, topological_dag
 
 def main():
     # 入力
     # 固定グラフ
-    # n,m = map(int,input().split()) # 頂点数、辺数
-    # edges = set()
-    # for _ in range(m):
-    #     a,b,c = map(int,input().split())
-    #     a -= 1
-    #     b -= 1
-    #     edges.add((a,b,c))
-    # 0-index
-    # edges = [
-    #     (0,6,1),
-    #     (1,0,1),
-    #     (1,17,1),
-    #     (2,1,1),
-    #     (3,13,1),
-    #     (3,4,1),
-    #     (4,14,1),
-    #     (4,22,1),
-    #     (5,15,1),
-    #     (6,5,1),
-    #     (6,16,1),
-    #     (7,18,1),
-    #     (8,7,1),
-    #     (9,2,1),
-    #     (9,3,1),
-    #     (9,11,1),
-    #     (9,13,1),
-    #     (10,8,1),
-    #     (10,19,1),
-    #     (11,10,1),
-    #     (11,12,1),
-    #     (12,13,1),
-    #     (12,20,1),
-    #     (13,14,1),
-    #     (13,26,1),
-    #     (14,21,1),
-    #     (15,55,1),
-    #     (16,15,1),
-    #     (16,23,1),
-    #     (17,16,1),
-    #     (18,17,1),
-    #     (18,19,1),
-    #     (19,28,1),
-    #     (20,19,1),
-    #     (20,25,1),
-    #     (21,22,1),
-    #     (21,31,1),
-    #     (22,36,1),
-    #     (23,32,1),
-    #     (23,45,1),
-    #     (24,23,1),
-    #     (25,28,1),
-    #     (25,29,1),
-    #     (26,25,1),
-    #     (27,24,1),
-    #     (28,33,1),
-    #     (29,30,1),
-    #     (29,39,1),
-    #     (30,31,1),
-    #     (30,39,1),
-    #     (31,35,1),
-    #     (32,37,1),
-    #     (33,32,1),
-    #     (34,30,1),
-    #     (34,40,1),
-    #     (35,34,1),
-    #     (35,44,1),
-    #     (36,35,1),
-    #     (36,61,1),
-    #     (37,38,1),
-    #     (37,46,1),
-    #     (38,41,1),
-    #     (39,38,1),
-    #     (39,42,1),
-    #     (39,43,1),
-    #     (40,39,1),
-    #     (41,42,1),
-    #     (41,46,1),
-    #     (42,51,1),
-    #     (43,48,1),
-    #     (44,43,1),
-    #     (44,54,1),
-    #     (45,46,1),
-    #     (46,50,1),
-    #     (46,51,1),
-    #     (47,51,1),
-    #     (47,58,1),
-    #     (48,47,1),
-    #     (49,56,1),
-    #     (50,49,1),
-    #     (50,57,1),
-    #     (52,59,1),
-    #     (53,48,1),
-    #     (53,52,1),
-    #     (54,53,1),
-    #     (55,56,1),
-    #     (56,57,1),
-    #     (57,51,1),
-    #     (57,58,1),
-    #     (58,51,1),
-    #     (59,58,1),
-    #     (60,53,1),
-    #     (61,60,1)
-    # ]
-    # n = 62
-    # m = len(edges)
+    edges = [
+    (0,1,3),
+    (0,2,10),
+    (0,3,16),
+    (0,4,6),
+    (1,5,5),
+    (2,1,2),
+    (2,5,3),
+    (2,9,4),
+    (2,7,2),
+    (2,3,1),
+    (3,7,3),
+    (4,3,1),
+    (4,7,5),
+    (4,8,6),
+    (5,9,9),
+    (6,5,2),
+    (6,7,4),
+    (6,11,2),
+    (7,3,3),
+    (8,7,4),
+    (8,12,3),
+    (8,13,4),
+    (9,13,12),
+    (10,6,7),
+    (10,9,2),
+    (10,13,4),
+    (11,8,3),
+    (11,10,1),
+    (11,12,2),
+    (11,13,11),
+    (12,13,3)
+    ]
     
     # ランダムグラフ
-    n = 100
-    g = generate_random_graph(n)
-    m = g.number_of_edges()
-    edges =  [(a,b,data["weight"]) for a,b,data in g.edges(data=True)]
-    edges = [(a,b,weight) for a,b,weight in g.edges(data="weight")]
+    # n = 100
+    # g = generate_random_graph(n)
+    # m = g.number_of_edges()
+    # edges =  [(a,b,data["weight"]) for a,b,data in g.edges(data=True)]
+    # edges = [(a,b,weight) for a,b,weight in g.edges(data="weight")]
 
     # n = 14
     # m = len(edges)
@@ -229,10 +157,12 @@ def main():
     # for a,b,capacity in edges :
     #     g.add_edge(a,b,capacity=capacity)
 
-    s, t = 0, len(g)-1
+    n = 14
+    s, t = 0, n-1
 
     mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
     print("max_flow =", mf)
+    # print("after_res_g =", after_res_g)
     # mf,st_paths = zdd_max_flow(n,edges)
     # print("st_paths.len() =",st_paths.len())
 
@@ -265,8 +195,18 @@ def main():
     # for edge in edges:
     #     u,v = edge
     #     g[u].append(v)
-    
-    scc, dag, topological_dag = decompose_scc(g)
+
+    sub_arg = [[] for _ in range(n)]
+    for i,v in enumerate(after_res_g):
+        for edge in v:
+            # print(edge)
+            if edge.cap == 0:
+                continue
+            
+            sub_arg[i].append(edge.to)
+    # print(sub_arg)
+
+    scc, dag, topological_dag = decompose_scc(sub_arg)
     print("scc =", len(scc), scc)
     print(dag)
     print(topological_dag)

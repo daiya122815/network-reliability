@@ -2,15 +2,15 @@ from collections import deque
 
 class Scc:
     
-    def __init__(self,g):
+    def __init__(self, sub_arg):
         # 更新後残余グラフ
-        self.g = g
+        self.sub_arg = sub_arg
     
     def order_dfs(self, cur:int, visited:list, order:list):
         # 各頂点を帰りがけ順で順位付け
         visited[cur] = True
         
-        for nxt in self.g[cur]:
+        for nxt in self.sub_arg[cur]:
             if not visited[nxt]:
                 self.order_dfs(nxt,visited,order)
         
@@ -28,7 +28,7 @@ class Scc:
         return component
     
     def scc_dag(self, components:list):
-        n = len(self.g)
+        n = len(self.sub_arg)
 
         # 各頂点に連結成分ごとのidを付与
         comp_id = [-1] * n
@@ -39,7 +39,7 @@ class Scc:
         # すべての辺を見て、連結成分が異なる場合、連結成分の隣接リストを更新
         comp_sets = [set() for _ in range(len(components))]
         for u in range(n):
-            for v in self.g[u]:
+            for v in self.sub_arg[u]:
                 cu, cv = comp_id[u], comp_id[v]
                 if cu != cv:
                     comp_sets[cu].add(cv)
@@ -75,10 +75,10 @@ class Scc:
         return topological_dag
     
     def decompose(self):
-        n = len(self.g)
+        n = len(self.sub_arg)
         rev_g = [[] for _ in range(n)] # 逆辺からなるグラフ
         for u in range(n):
-            for v in self.g[u]:
+            for v in self.sub_arg[u]:
                 rev_g[v].append(u)
         
         order = []
