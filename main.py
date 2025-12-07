@@ -13,6 +13,7 @@ from ford_fulkerson import *
 from zdd_max_flow import *
 from min_st_cut import *
 from scc import *
+from zdd_all_min_st_cuts import *
 
 # sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
 
@@ -51,26 +52,25 @@ def ff_max_flow(n:int, edges:list, s:int, t:int):
     max_flow, before_res_g, after_res_g = ff.max_flow(n, edges, s, t)
     return max_flow, before_res_g, after_res_g
 
-# def zdd_max_flow(n:int, edges:list):
+def zdd_max_flow(n:int, edges:list, s:int, t:int):
 
-#     zmf = ZddMaxFlow(n)
+    zmf = ZddMaxFlow(n)
 
-#     universe = set()
-#     for a,b,c in edges:
-#         zmf.add_edge(a,b,c)
+    universe = set()
+    for a,b,c in edges:
+        zmf.add_edge(a,b,c)
 
-#         universe.add((a,b))
-#         universe.add((b,a))
+        universe.add((a,b))
+        universe.add((b,a))
 
-#     # 有向グラフセット生成
-#     DGS.set_universe(universe)
+    # 有向グラフセット生成
+    DGS.set_universe(universe)
     
-#     # stパスを列挙（増加道）
-#     s,t = 0, n-1
-#     st_paths = DGS.directed_st_paths(s,t)
+    # stパスを列挙（増加道）
+    st_paths = DGS.directed_st_paths(s,t)
     
-#     mf = zmf.max_flow(st_paths)
-#     return mf,st_paths
+    max_flow = zmf.max_flow(st_paths)
+    return max_flow, st_paths
 
 # 1つの最小カット辺集合
 def min_st_cut(after_res_g:list, s:int):
@@ -105,6 +105,11 @@ def decompose_scc(after_res_g):
     scc = Scc(after_res_g)
     scc, dag, topological_dag = scc.decompose()
     return scc, dag, topological_dag
+
+def zdd_all_min_st_cuts():
+    zamsc = ZddAllMinStCuts()
+    zamsc.closure()
+    return
 
 def main():
     # 入力
@@ -199,18 +204,21 @@ def main():
     sub_arg = [[] for _ in range(n)]
     for i,v in enumerate(after_res_g):
         for edge in v:
-            # print(edge)
             if edge.cap == 0:
                 continue
-            
             sub_arg[i].append(edge.to)
-    # print(sub_arg)
+    print("sub_arg =", sub_arg)
 
     scc, dag, topological_dag = decompose_scc(sub_arg)
     print("scc =", len(scc), scc)
-    print(dag)
-    print(topological_dag)
-    
+    print("dag = ", dag)
+    print("topological_dag =", topological_dag)
+
+    zddmf, st_paths = zdd_max_flow(n, edges, s, t)
+    print("zddmf =", zddmf, st_paths)
+
+    # all_st_min_cuts = zdd_all_min_st_cuts()
+    # print(all_st_min_cuts)
     # draw_graph(g)
 
 if __name__ == "__main__":
