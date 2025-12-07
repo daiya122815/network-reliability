@@ -13,6 +13,7 @@ from ford_fulkerson import *
 from zdd_max_flow import *
 from min_st_cut import *
 from scc import *
+from all_min_st_cuts import *
 from zdd_all_min_st_cuts import *
 
 # sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
@@ -106,8 +107,10 @@ def decompose_scc(after_res_g):
     scc, dag, topological_dag = scc.decompose()
     return scc, dag, topological_dag
 
-def all_min_st_cuts():
-    return
+def all_min_st_cuts(s_order, t_order, dag, inv_dag):
+    amsc = AllMinStCuts(s_order, t_order, dag, inv_dag)
+    all_min_st_cuts = amsc.solver()
+    return all_min_st_cuts
 
 def zdd_all_min_st_cuts():
     zamsc = ZddAllMinStCuts()
@@ -217,34 +220,12 @@ def main():
     for i, adj in enumerate(dag):
         for j in adj:
             inv_dag[j].append(i)
-
-    stack = [s_order]
-    s_visited = [False] * len(dag)
-    s_visited[s_order] = True
-    while stack:
-        cur = stack.pop()
-        for nxt in dag[cur]:
-            if not s_visited[nxt]:
-                s_visited[nxt] = True
-                stack.append(nxt)
-        
-    stack = [t_order]
-    t_visited = [False] * len(dag)
-    t_visited[t_order] = True
-    while stack:
-        cur = stack.pop()
-        t_visited[cur] = True
-        for nxt in inv_dag[cur]:
-            if not t_visited[nxt]:
-                t_visited[nxt] = True
-                stack.append(nxt)
-    print(s_visited, t_visited)
+    
+    ans = all_min_st_cuts(s_order, t_order, dag, inv_dag)
+    print("ans =", ans)
 
     # s_visitedがTrueである頂点は必ず解に含まれる
     # t_visitedがTrueである頂点は必ず除く
-
-    for a, b in zip(s_visited, t_visited):
-        print(a or b)
 
     # zdd_all_st_min_cuts = zdd_all_min_st_cuts()
     # print(zdd_all_st_min_cuts)
