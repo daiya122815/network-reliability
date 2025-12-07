@@ -106,6 +106,9 @@ def decompose_scc(after_res_g):
     scc, dag, topological_dag = scc.decompose()
     return scc, dag, topological_dag
 
+def all_min_st_cuts():
+    return
+
 def zdd_all_min_st_cuts():
     zamsc = ZddAllMinStCuts()
     zamsc.closure()
@@ -185,22 +188,6 @@ def main():
     #             d[(a,b)] += 1
     # print(d)
 
-    # edges = [
-    #     (0,1),
-    #     (1,2),
-    #     (2,0),
-    #     (2,3),
-    #     (3,4),
-    #     (4,3),
-    #     (4,5),
-    #     (4,6)
-    # ]
-    # n = 7
-    # g = [[] for _ in range(n)]
-    # for edge in edges:
-    #     u,v = edge
-    #     g[u].append(v)
-
     sub_arg = [[] for _ in range(n)]
     for i,v in enumerate(after_res_g):
         for edge in v:
@@ -214,11 +201,53 @@ def main():
     print("dag = ", dag)
     print("topological_dag =", topological_dag)
 
+
     zddmf, st_paths = zdd_max_flow(n, edges, s, t)
     print("zddmf =", zddmf, st_paths)
 
-    # all_st_min_cuts = zdd_all_min_st_cuts()
-    # print(all_st_min_cuts)
+    s_order = -1; t_order = -1
+    for i, adj in enumerate(scc):
+        if s in set(adj):
+            s_order = i
+        if t in set(adj):
+            t_order = i
+    print(s_order, t_order)
+
+    inv_dag = [[] for _ in range(len(dag))]
+    for i, adj in enumerate(dag):
+        for j in adj:
+            inv_dag[j].append(i)
+
+    stack = [s_order]
+    s_visited = [False] * len(dag)
+    s_visited[s_order] = True
+    while stack:
+        cur = stack.pop()
+        for nxt in dag[cur]:
+            if not s_visited[nxt]:
+                s_visited[nxt] = True
+                stack.append(nxt)
+        
+    stack = [t_order]
+    t_visited = [False] * len(dag)
+    t_visited[t_order] = True
+    while stack:
+        cur = stack.pop()
+        t_visited[cur] = True
+        for nxt in inv_dag[cur]:
+            if not t_visited[nxt]:
+                t_visited[nxt] = True
+                stack.append(nxt)
+    print(s_visited, t_visited)
+
+    # s_visitedがTrueである頂点は必ず解に含まれる
+    # t_visitedがTrueである頂点は必ず除く
+
+    for a, b in zip(s_visited, t_visited):
+        print(a or b)
+
+    # zdd_all_st_min_cuts = zdd_all_min_st_cuts()
+    # print(zdd_all_st_min_cuts)
     # draw_graph(g)
 
 if __name__ == "__main__":
