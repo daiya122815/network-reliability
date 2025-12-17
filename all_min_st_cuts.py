@@ -1,8 +1,8 @@
 class AllMinStCuts:
 
-    def __init__(self, s_order: int, t_order: int, dag: list[list[int]], inv_dag: list[list[int]]):
-        self.s_order = s_order
-        self.t_order = t_order
+    def __init__(self, s_idx: int, t_idx: int, dag: list[list[int]], inv_dag: list[list[int]]):
+        self.s_idx = s_idx
+        self.t_idx = t_idx
         self.dag = dag
         self.inv_dag = inv_dag
         
@@ -26,25 +26,44 @@ class AllMinStCuts:
     
     def get_cand_vtx(self):
 
-        # s_order sを含むscc連結成分のインデックス t_orderも同様
-        # s_visited s_orderから到達可能頂点
-        s_visited = self.stack_dfs(self.s_order, self.dag)
-        t_visited = self.stack_dfs(self.t_order, self.inv_dag)
+        # s_idx sを含むscc連結成分のインデックス t_idxも同様
+        # s_visited s_idxから到達可能頂点
+        s_visited = self.stack_dfs(self.s_idx, self.dag)
+        t_visited = self.stack_dfs(self.t_idx, self.inv_dag)
 
         # sから到達可能頂点は、必ず解に含む
         # tから到達可能頂点は、含んではならない。
         self.include = {v for v, ok in enumerate(s_visited) if ok}
         self.exclude = {v for v, ok in enumerate(t_visited) if ok}
+
+        # sとtの両方から到達不可能である頂点を取り出す。
         for v, (s, t) in enumerate(zip(s_visited, t_visited)):
             if not (s or t):
                 self.sol_set.append(v)
     
-    def _is_closed(self, nodes: set[int]) -> bool:
-        for v in nodes:
-            for nxt in self.dag[v]:
+    def is_closed(self, nodes: set[int]) -> bool:
+
+        # これだと1階層分しか見てないはず
+        # for v in nodes:
+        #     for nxt in self.dag[v]:
+        #         if nxt not in nodes:
+        #             return False
+        # return True
+
+        stack = list(nodes)
+        flag = False
+        while stack:
+            cur = stack.pop()
+            for nxt in self.dag[cur]:
                 if nxt not in nodes:
-                    return False
+                    flag = True
+                    break
+                else:
+                    stack.append(nxt)
+            if flag:
+                return False
         return True
+
     
     # すべての最小カットを求める
     def solver(self):
@@ -59,9 +78,9 @@ class AllMinStCuts:
                 if (mask>>bit) & 1:
                     new.add(self.sol_set[bit])
             
-            if new & self.exclude: # 新たな解とexcludeに共通部分がある場合は追加しない
+            if new & self.exclude: # 新たな解とexcludeに共通部分がある場合は新たな解でない
                 continue
-            if self._is_closed(new): # 新たな解が閉包を満たすかどうか
+            if self.is_closed(new): # 新たな解が閉包を満たすかどうか
                 ans.append(new)
                 
         return ans
