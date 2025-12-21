@@ -10,6 +10,7 @@ from copy import deepcopy # オブジェクトのコピー
 
 # 同階層のファイルの読み込み
 from ford_fulkerson import *
+from edmonds_karp import *
 from zdd_max_flow import *
 from min_st_cut import *
 from scc import *
@@ -51,6 +52,11 @@ def draw_graph(g):
 def ff_max_flow(n:int, edges:list, s:int, t:int):
     ff = FordFulkerson(n) # インスタンス生成
     max_flow, before_res_g, after_res_g = ff.max_flow(n, edges, s, t)
+    return max_flow, before_res_g, after_res_g
+
+def ek_max_flow(n:int, edges:list, s:int, t:int):
+    ek = EdmondsKarp(n) # インスタンス生成
+    max_flow, before_res_g, after_res_g = ek.max_flow(n, edges, s, t)
     return max_flow, before_res_g, after_res_g
 
 def zdd_max_flow(n:int, edges:list, s:int, t:int):
@@ -171,7 +177,8 @@ def main():
     n = 14
     s, t = 0, n-1
 
-    mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
+    # mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
+    mf, before_res_g, after_res_g = ek_max_flow(n, edges, s, t)
     print("max_flow =", mf)
     # print("after_res_g =", after_res_g)
     # mf,st_paths = zdd_max_flow(n,edges)
