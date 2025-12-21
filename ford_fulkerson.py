@@ -47,6 +47,49 @@ class FordFulkerson:
         # 更新可能フロー（すべての頂点を辿り、更新フローが0）が見つからなくなった場合の返り値
         return 0
     
+    def back_track(self, prv, s:int, t:int, f:int):
+        cur = t
+        while cur != s:
+            
+            nxt, idx = prv[cur]
+            edge = self.res_g[nxt][idx]
+            edge.cap -= f
+            self.res_g[edge.to][edge.rev].cap += f
+
+            cur = nxt
+
+    def stack_dfs(self, visited:list[bool], s:int, t:int, INF:float):
+        n = len(self.res_g)
+        stack = [s]
+        visited[s] = True
+        prv = [None] * n
+        bottleneck = [INF] * n
+        
+        while stack:
+            cur = stack.pop()
+            
+            nei = []
+            for idx, edge in enumerate(self.res_g[cur]):
+                if not visited[edge.to] and edge.cap > 0:
+                    visited[edge.to] = True
+                    nei.append(edge.to)
+                    
+                    prv[edge.to] = (cur, idx)
+
+                    bottleneck[edge.to] = min(bottleneck[cur], edge.cap)
+
+                    if edge.to == t:
+                        f = bottleneck[t]
+                        self.back_track(prv, s, t, f)
+                        return f
+            
+            # 隣接頂点を逆順にし、stackに追加することで、再帰と同じ探索順序を保つ
+            nei = reversed(nei)
+            stack += nei
+        
+        # 更新可能フロー（すべての頂点を辿り、更新フローが0）が見つからなくなった場合の返り値
+        return 0
+
     # 最大流
     def max_flow(self, n:int, edges:list, s:int, t:int):
        
@@ -62,7 +105,11 @@ class FordFulkerson:
         # 更新可能フローが見つからなくなるまで実行
         while True:
             visited = [False] * n
-            flow = self.dfs(visited, s, t, INF)
+            
+            # 再帰またはstack
+            # flow = self.dfs(visited, s, t, INF)
+            flow = self.stack_dfs(visited, s, t, INF)
+            
             if flow == 0:
                 break
             mf += flow
