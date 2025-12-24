@@ -72,7 +72,7 @@ class AllMinStCuts:
         ans = []
         # bit全探索なので、nが小さい場合のみ有効
         n = len(self.sol_set)
-        for mask in range(1 << n):
+        for mask in range(1<<n):
             new = set(self.include)
             for bit in range(n):
                 if (mask>>bit) & 1:

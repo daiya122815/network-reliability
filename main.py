@@ -18,7 +18,7 @@ from scc import *
 from all_min_st_cuts import *
 from zdd_all_min_st_cuts import *
 
-# sys.setrecursionlimit(n+m) # 再帰の回数上限を変更（デフォルトは1000）
+# sys.setrecursionlimit(10**10) # 再帰の回数上限を変更（デフォルトは1000）
 
 # ランダムグラフ生成
 def generate_random_graph(n):
@@ -31,21 +31,23 @@ def generate_random_graph(n):
             break
     
     # 辺に重みをつける
+    # random_generate
     rng = np.random.default_rng()
-    for a,b in rnd_g.edges():
-        rnd_g[a][b]["weight"] = rng.integers(1,50,dtype=np.int64)
-    print(rnd_g)
+    for u,v in rnd_g.edges():
+        rnd_g[u][v]["weight"] = rng.integers(1,50,dtype=np.int64)
+    
     return rnd_g
 
 # グラフ描画
 def draw_graph(g):
     pos = nx.spring_layout(g,seed=42) # sl_seed
-    # node_labels = {node:node+1 for node in g.nodes()} # ノードラベルを1-indexに
+    
     node_labels = {node:node for node in g.nodes()} # ノードラベルを0-indexに
+    # node_labels = {node:node+1 for node in g.nodes()} # ノードラベルを1-indexに
     nx.draw(g,pos=pos,with_labels=True,labels=node_labels,arrows=True) # ノード描画
 
     edge_labels = nx.get_edge_attributes(g,"weight")
-    nx.draw_networkx_edge_labels(g,pos=pos,edge_labels=edge_labels) # 辺描画
+    nx.draw_networkx_edge_labels(g,pos=pos,edge_labels=edge_labels) # 辺ラベル描画
 
     plt.show()
 
@@ -87,29 +89,6 @@ def zdd_max_flow(n:int, edges:list, s:int, t:int):
 
 # 1つの最小カット辺集合
 def min_st_cut(after_res_g:list, s:int):
-    # msc = MinStCut(max_flow, after_residual_g)
-    # fw_edges = msc.forward_edges(after_residual_g)
-    # fw_graph = msc.forward_graph(fw_edges)
-
-    # S,T = smc.recursive_dfs()
-    # S,T = smc.stack.dfs()
-    # S,T = smc.bfs()
-
-    # min_st_cut_edges = smc.min_st_cut_edges()
-    # return min_st_cut_edges
-
-    # 以下は動く
-    # msc = MinStCut(max_flow, after_residual_g)
-    # forward_edges = msc.forward_edges(after_residual_g)
-    # forward_g = msc.build_forward_graph(forward_edges)
-    # print("forward_graph =", forward_g)
-    # visited = [False]*len(g)
-    # S = {s}
-    # print(msc.recursive_dfs(0,visited,s,S))
-    # print(msc.stack_dfs(s))
-    # print(msc.bfs(s))
-    # print(msc.min_st_cut_edges(s))
-
     msc = MinStCut(after_res_g)
     min_st_cut_edges = msc.min_st_cut_edges(s)
     return min_st_cut_edges
@@ -193,35 +172,25 @@ def main():
 
     min_st_cut_edges = min_st_cut(after_res_g, s)
     print("min_st_cut_edges =", min_st_cut_edges)
-    
-    # stパスの各辺の出現回数
-    # d = {}
-    # for path in st_paths:
-    #     # print(path)
-    #     for a,b in path:
-    #         if (a,b) not in d:
-    #             d[(a,b)] = 1
-    #         else:
-    #             d[(a,b)] += 1
-    # print(d)
 
-    sub_arg = [[] for _ in range(n)]
+    # PQ構造における関係Rを満たす辺のみからなる部分グラフ
+    sub_after_res_g = [[] for _ in range(n)]
     for i,v in enumerate(after_res_g):
         for edge in v:
             if edge.cap == 0:
                 continue
-            sub_arg[i].append(edge.to)
-    print("sub_arg =", sub_arg)
+            sub_after_res_g[i].append(edge.to)
+    print("sub_after_res_g =", sub_after_res_g)
 
-    scc, dag, topological_dag = decompose_scc(sub_arg)
+    scc, dag, topological_dag = decompose_scc(sub_after_res_g)
     print("scc =", len(scc), scc)
     print("dag = ", dag)
     print("topological_dag =", topological_dag)
-
-
+    
     zddmf, st_paths = zdd_max_flow(n, edges, s, t)
-    print("zddmf =", zddmf, st_paths)
+    print("zdd_max_flow =", zddmf, st_paths)
 
+    # sを含む連結成分のインデックス
     s_order = -1; t_order = -1
     for i, adj in enumerate(scc):
         if s in set(adj):
