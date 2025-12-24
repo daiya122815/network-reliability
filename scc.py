@@ -3,7 +3,8 @@ from collections import deque
 class Scc:
     
     def __init__(self, sub_arg):
-        # 更新後残余グラフ
+        # 更新後残余グラフの部分グラフ
+        # subgraph_after_residual_graph
         self.sub_arg = sub_arg
     
     def order_dfs(self, cur:int, visited:list, order:list):
@@ -16,6 +17,24 @@ class Scc:
         
         order.append(cur)
     
+    def order_stack_dfs(self, cur:int, visited:list, order:list):
+        # 各頂点を帰りがけ順で順位付け
+        stack = [(cur, 0)]
+        visited = [False] * len(self.sub_arg)
+        visited[cur] = True
+        
+        while stack:
+            cur, idx = stack.pop()
+
+            if idx < len(self.sub_arg[cur]):
+                nxt = self.sub_arg[cur][idx]
+                stack.append((cur, idx+1))
+                if not visited[nxt]:
+                    visited[nxt] = True
+                    stack.append((nxt, 0))
+            else:
+                order.append(cur)
+    
     def scc_dfs(self, rev_g:list, cur:int, visited:list, component:list):
         visited[cur] = True
         component.append(cur)
@@ -25,6 +44,24 @@ class Scc:
             if not visited[nxt]:
                 self.scc_dfs(rev_g, nxt, visited, component)
         
+        return component
+    
+    def scc_stack_dfs(self, rev_g:list, cur:int, visited:list, component:list):
+        visited[cur] = True
+        component.append(cur)
+        stack = [cur]
+
+        while stack:
+            cur = stack.pop()
+            component.append(cur)
+            nei = []
+            for nxt in rev_g[cur]:
+                if not visited[nxt]:
+                    visited[nxt] = True
+                    nei.append(nxt)
+            nei = reversed(nei)
+            stack.append(nei)
+
         return component
     
     def scc_dag(self, components:list):

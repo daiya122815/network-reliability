@@ -80,7 +80,7 @@ class FordFulkerson:
 
                     if edge.to == t:
                         f = bottleneck[t]
-                        self.back_track(prv, s, t, f)
+                        self.back_track(prv, s, t, f) # 残余グラフ更新
                         return f
             
             # 隣接頂点を逆順にし、stackに追加することで、再帰と同じ探索順序を保つ
