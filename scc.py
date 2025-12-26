@@ -28,7 +28,7 @@ class Scc:
 
             if idx < len(self.sub_arg[cur]):
                 nxt = self.sub_arg[cur][idx]
-                stack.append((cur, idx+1))
+                stack.append((cur, idx+1)) # 自身をstackに再度追加し、漏れをなくす。
                 if not visited[nxt]:
                     visited[nxt] = True
                     stack.append((nxt, 0))
@@ -44,34 +44,32 @@ class Scc:
             if not visited[nxt]:
                 self.scc_dfs(rev_g, nxt, visited, component)
         
-        return component
+        return sorted(component)
     
     def scc_stack_dfs(self, rev_g:list, cur:int, visited:list, component:list):
         visited[cur] = True
-        component.append(cur)
         stack = [cur]
 
         while stack:
             cur = stack.pop()
             component.append(cur)
-            nei = []
             for nxt in rev_g[cur]:
                 if not visited[nxt]:
                     visited[nxt] = True
-                    nei.append(nxt)
-            nei = reversed(nei)
-            stack.append(nei)
+                    stack.append(nxt)
 
-        return component
+        return sorted(component)
     
     def scc_dag(self, components:list):
         n = len(self.sub_arg)
 
         # 各頂点に連結成分ごとのidを付与
+        # 連結成分内の頂点番号が最小であるものからidをつけるため、ソート済みcomponents。
         comp_id = [-1] * n
         for i, comp in enumerate(components):
             for v in comp:
-                comp_id[v] = i        
+                comp_id[v] = i 
+        
         
         # すべての辺を見て、連結成分が異なる場合、連結成分の隣接リストを更新
         comp_sets = [set() for _ in range(len(components))]
@@ -81,6 +79,7 @@ class Scc:
                 if cu != cv:
                     comp_sets[cu].add(cv)
         scc_dag = [sorted(comp) for comp in comp_sets]
+        
         return scc_dag
     
     def topological_sort(self, dag:list):
@@ -88,23 +87,23 @@ class Scc:
         topological_dag = []
 
         # 入次数
-        indegrees = [0] * n
+        indeg = [0] * n
         for u in dag:
             for v in u:
-                indegrees[v] += 1
+                indeg[v] += 1
         
         # 入次数が0である頂点をdeqに追加
         deq = deque()
         for i in range(n):
-            if indegrees[i] == 0:
+            if indeg[i] == 0:
                 deq.append(i)
         
         while deq:
             v = deq.popleft()
 
             for nei in dag[v]:
-                indegrees[nei] -= 1
-                if indegrees[nei] == 0:
+                indeg[nei] -= 1
+                if indeg[nei] == 0:
                     deq.append(nei)
             
             topological_dag.append(v)
@@ -130,8 +129,11 @@ class Scc:
         for v in reversed(order):
             if visited[v]:
                 continue
-            component = self.scc_dfs(rev_g, v, visited, [])
+            # component = self.scc_dfs(rev_g, v, visited, [])
+            component = self.scc_stack_dfs(rev_g, v, visited, [])
             components.append(component)
+        
+        components.sort()
         
         # 連結成分に縮約したDAGを取得
         dag = self.scc_dag(components)

@@ -165,13 +165,13 @@ def main():
     # mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
     # mf, before_res_g, after_res_g = ek_max_flow(n, edges, s, t)
     mf, before_res_g, after_res_g = dinic_max_flow(n, edges, s, t)
-    print("max_flow =", mf)
+    # print("max_flow =", mf)
     # print("after_res_g =", after_res_g)
     # mf,st_paths = zdd_max_flow(n,edges)
     # print("st_paths.len() =",st_paths.len())
 
     min_st_cut_edges = min_st_cut(after_res_g, s)
-    print("min_st_cut_edges =", min_st_cut_edges)
+    # print("min_st_cut_edges =", min_st_cut_edges)
 
     # PQ構造における関係Rを満たす辺のみからなる部分グラフ
     sub_after_res_g = [[] for _ in range(n)]
@@ -180,7 +180,7 @@ def main():
             if edge.cap == 0:
                 continue
             sub_after_res_g[i].append(edge.to)
-    print("sub_after_res_g =", sub_after_res_g)
+    # print("sub_after_res_g =", sub_after_res_g)
 
     scc, dag, topological_dag = decompose_scc(sub_after_res_g)
     print("scc =", len(scc), scc)
@@ -188,21 +188,23 @@ def main():
     print("topological_dag =", topological_dag)
     
     zddmf, st_paths = zdd_max_flow(n, edges, s, t)
-    print("zdd_max_flow =", zddmf, st_paths)
+    # print("zdd_max_flow =", zddmf, st_paths)
 
     # sを含む連結成分のインデックス
     s_order = -1; t_order = -1
     for i, adj in enumerate(scc):
-        if s in set(adj):
+        adj = set(adj)
+        if s in adj:
             s_order = i
-        if t in set(adj):
+        if t in adj:
             t_order = i
-    print(s_order, t_order)
+    # print(s_order, t_order)
 
     inv_dag = [[] for _ in range(len(dag))]
     for i, adj in enumerate(dag):
         for j in adj:
             inv_dag[j].append(i)
+    # print("inv_dag =", inv_dag)
     
     ans = all_min_st_cuts(s_order, t_order, dag, inv_dag)
     print("ans =", ans)
@@ -213,6 +215,10 @@ def main():
     # zdd_all_st_min_cuts = zdd_all_min_st_cuts()
     # print(zdd_all_st_min_cuts)
     # draw_graph(g)
+
+    # zamsc = ZddAllMinStCuts(s_order, t_order, dag, inv_dag)
+    # ok = zamsc.build_zdd(dag, topological_dag)
+    # print(ok)
 
 if __name__ == "__main__":
     main()
