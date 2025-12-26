@@ -43,13 +43,6 @@ class AllMinStCuts:
     
     def is_closed(self, nodes: set[int]) -> bool:
 
-        # これだと1階層分しか見てないはず
-        # for v in nodes:
-        #     for nxt in self.dag[v]:
-        #         if nxt not in nodes:
-        #             return False
-        # return True
-
         stack = list(nodes)
         flag = False
         while stack:
@@ -69,7 +62,7 @@ class AllMinStCuts:
     def solver(self):
         self.get_cand_vtx()
 
-        ans = []
+        all_min_st_cuts = []
         # bit全探索なので、nが小さい場合のみ有効
         n = len(self.sol_set)
         for mask in range(1<<n):
@@ -81,6 +74,6 @@ class AllMinStCuts:
             if new & self.exclude: # 新たな解とexcludeに共通部分がある場合は新たな解でない
                 continue
             if self.is_closed(new): # 新たな解が閉包を満たすかどうか
-                ans.append(new)
+                all_min_st_cuts.append((new,set(range(len(self.dag)))-new))
                 
-        return ans
+        return all_min_st_cuts
