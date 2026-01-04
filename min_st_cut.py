@@ -3,7 +3,7 @@ from collections import deque
 class MinStCut:
 
     # 構造体　Edge(to,cap,rev,fwd)
-    def __init__(self, after_res_g:list[list[Edge]]):
+    def __init__(self, after_res_g):
         self.after_res_g = after_res_g # 最大流計算後の残余グラフ
         self.fwd_g = [[] for _ in range(len(self.after_res_g))]
 

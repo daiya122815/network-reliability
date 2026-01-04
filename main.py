@@ -144,7 +144,27 @@ def main():
     (11,13,11),
     (12,13,3)
     ]
-    
+
+    edges = []
+    n,m = -1,-1
+    s,t = -1,-1
+    ok = True
+    with open('graphs/pq.txt') as f:
+        for line in f:
+            if line[0] == '#' or not line:
+                continue
+            a = tuple(map(int,line.split()))
+            if len(a) == 2:
+                if ok:
+                    n,m = a[0],a[1]
+                    ok = False
+                else:
+                    s,t = a[0],a[1]
+            else: 
+                edges.append(a)
+    # print(edges)
+    print(n,m,s,t)
+
     # ランダムグラフ
     # n = 100
     # g = generate_random_graph(n)
@@ -159,13 +179,14 @@ def main():
     # for a,b,capacity in edges :
     #     g.add_edge(a,b,capacity=capacity)
 
-    n = 14
-    s, t = 0, n-1
+    # s,t = 9, 51
 
-    # mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
-    # mf, before_res_g, after_res_g = ek_max_flow(n, edges, s, t)
+    mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
+    print("max_flow =", mf)
+    mf, before_res_g, after_res_g = ek_max_flow(n, edges, s, t)
+    print("max_flow =", mf)
     mf, before_res_g, after_res_g = dinic_max_flow(n, edges, s, t)
-    # print("max_flow =", mf)
+    print("max_flow =", mf)
     # print("after_res_g =", after_res_g)
     # mf,st_paths = zdd_max_flow(n,edges)
     # print("st_paths.len() =",st_paths.len())
@@ -206,8 +227,9 @@ def main():
             inv_dag[j].append(i)
     # print("inv_dag =", inv_dag)
     
-    ans = all_min_st_cuts(s_order, t_order, dag, inv_dag)
-    print("ans =", ans)
+    # ans = all_min_st_cuts(s_order, t_order, dag, inv_dag)
+    # print("ans =", ans)
+    # print(len(ans))
 
     # s_visitedがTrueである頂点は必ず解に含まれる
     # t_visitedがTrueである頂点は必ず除く
@@ -216,9 +238,10 @@ def main():
     # print(zdd_all_st_min_cuts)
     # draw_graph(g)
 
-    # zamsc = ZddAllMinStCuts(s_order, t_order, dag, inv_dag)
-    # ok = zamsc.build_zdd(dag, topological_dag)
-    # print(ok)
+    zamsc = ZddAllMinStCuts(s_order, t_order, dag, inv_dag)
+    ok = zamsc.build_zdd(dag, topological_dag)
+    for e in ok:
+        print(e)
 
 if __name__ == "__main__":
     main()
