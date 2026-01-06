@@ -11,11 +11,11 @@ class Edge:
     fwd : bool
 
 class Dinic:
-    # 残余グラフの隣接リスト（インスタンス変数）
+    # 残余グラフの隣接リストと各頂点のリストイテレータ（インスタンス変数）
     def __init__(self, n:int):
         # residual_graph
         self.res_g = [[] for _ in range(n)]
-        self.itr = None
+        self.itr = [0] * n
     
     # 辺の追加
     def add_edge(self, a:int, b:int, c:int):
@@ -34,13 +34,12 @@ class Dinic:
         if cur == t:
             return f
         
-        # bfs木はDAGであり、同じ頂点を複数回訪れることがないため、各辺は一回のみしか探索しなくてよい。
-        # itrで、前に探索した辺をdfsで再度探索しないようにする。
+        # itrで、同レベルグラフで、前に探索した辺をdfsで再度探索しないようにする
         while self.itr[cur] < len(self.res_g[cur]):
             e = self.res_g[cur][self.itr[cur]]
             self.itr[cur] += 1
 
-            # 距離が遠くなる辺のみを通り、tまでの最短経路を探索
+            # 距離の差が1である辺のみを通り、tまでの最短経路を探索
             if dist[e.to] == dist[cur]+1 and dist[e.to] <= dist[t] and e.cap > 0:
                 flow = self.dfs(dist, e.to, t, min(f,e.cap))
                 
@@ -63,10 +62,10 @@ class Dinic:
         while deq:
             cur = deq.popleft()
             
-            for edge in self.res_g[cur]:
-                if dist[edge.to] == -1 and edge.cap > 0:
-                    dist[edge.to] = dist[cur] + 1
-                    deq.append(edge.to)
+            for e in self.res_g[cur]:
+                if dist[e.to] == -1 and e.cap > 0:
+                    dist[e.to] = dist[cur] + 1
+                    deq.append(e.to)
         
         return dist
 
@@ -74,8 +73,8 @@ class Dinic:
     def max_flow(self, n:int, edges:list, s:int, t:int):
        
         # 各辺の入力
-        for a,b,c in edges:
-            self.add_edge(a,b,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
+        for u,v,c in edges:
+            self.add_edge(u,v,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
         
         before_res_g = deepcopy(self.return_residual_graph()) # オブジェクトを新たな変数にコピー
 
@@ -85,7 +84,7 @@ class Dinic:
         # 更新可能フローが見つからなくなるまで実行
         while True:
             flow = 0
-            # bfsで各頂点の距離をラベル付けし、bfs木(DAG)を構築
+            # bfsで各頂点の距離をラベル付けし、距離グラフを構築
             dist = self.bfs(s)
             if dist[t] == -1: # tに到達不可能であれば、終了
                 break

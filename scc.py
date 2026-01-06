@@ -2,36 +2,35 @@ from collections import deque
 
 class Scc:
     
-    def __init__(self, sub_arg):
+    def __init__(self, sub_after_res_g):
         # 更新後残余グラフの部分グラフ
         # subgraph_after_residual_graph
-        self.sub_arg = sub_arg
+        self.sub_after_res_g = sub_after_res_g
     
     def order_dfs(self, cur:int, visited:list, order:list):
         # 各頂点を帰りがけ順で順位付け
         visited[cur] = True
         
-        for nxt in self.sub_arg[cur]:
+        for nxt in self.sub_after_res_g[cur]:
             if not visited[nxt]:
                 self.order_dfs(nxt,visited,order)
         
         order.append(cur)
     
     def order_stack_dfs(self, cur:int, visited:list, order:list):
-        # 各頂点を帰りがけ順で順位付け
-        stack = [(cur, 0)]
-        visited = [False] * len(self.sub_arg)
+        stack = [(cur,0)]
         visited[cur] = True
         
         while stack:
-            cur, idx = stack.pop()
+            cur,bit = stack.pop()
 
-            if idx < len(self.sub_arg[cur]):
-                nxt = self.sub_arg[cur][idx]
-                stack.append((cur, idx+1)) # 自身をstackに再度追加し、漏れをなくす。
-                if not visited[nxt]:
-                    visited[nxt] = True
-                    stack.append((nxt, 0))
+            if bit == 0:
+                stack.append((cur,1)) # 自身を追加
+
+                for nxt in reversed(self.sub_after_res_g[cur]):
+                    if not visited[nxt]:
+                        visited[nxt] = True
+                        stack.append((nxt,0))
             else:
                 order.append(cur)
     
@@ -61,21 +60,23 @@ class Scc:
         return sorted(component)
     
     def scc_dag(self, components:list):
-        n = len(self.sub_arg)
+        n = len(self.sub_after_res_g)
 
         # 各頂点に連結成分ごとのidを付与
         # 連結成分内の頂点番号が最小であるものからidをつけるため、ソート済みcomponents。
         comp_id = [-1] * n
-        for i, comp in enumerate(components):
+        for i,comp in enumerate(components):
             for v in comp:
                 comp_id[v] = i 
         
         
-        # すべての辺を見て、連結成分が異なる場合、連結成分の隣接リストを更新
+        # すべての頂点を見て、連結成分が異なる場合、連結成分の隣接リストを更新
+        # setにすることで、 連結成分間の多重辺を除く
         comp_sets = [set() for _ in range(len(components))]
-        for u in range(n):
-            for v in self.sub_arg[u]:
-                cu, cv = comp_id[u], comp_id[v]
+
+        for u,adj in enumerate(self.sub_after_res_g):
+            for v in adj:
+                cu,cv = comp_id[u],comp_id[v]
                 if cu != cv:
                     comp_sets[cu].add(cv)
         scc_dag = [sorted(comp) for comp in comp_sets]
@@ -111,17 +112,18 @@ class Scc:
         return topological_dag
     
     def decompose(self):
-        n = len(self.sub_arg)
+        n = len(self.sub_after_res_g)
         rev_g = [[] for _ in range(n)] # 逆辺からなるグラフ
-        for u in range(n):
-            for v in self.sub_arg[u]:
+        for u,adj in enumerate(self.sub_after_res_g):
+            for v in adj:
                 rev_g[v].append(u)
         
         order = []
         visited = [False] * n
         for v in range(n):
             if not visited[v]:
-                self.order_dfs(v, visited, order)
+                # self.order_dfs(v, visited, order)
+                self.order_stack_dfs(v, visited, order)
         
         components = []
         visited = [False] * n

@@ -8,12 +8,11 @@ class MinStCut:
         self.fwd_g = [[] for _ in range(len(self.after_res_g))]
 
     def build_forward_graph(self):
-        # 残余グラフで順辺のみを取り、部分グラフfwd_gを構築
-        # fwd_g = [[] for _ in range(self.after_res_g)]
+        # 残余グラフの順辺からなる、部分グラフfwd_gを構築
         for i,v in enumerate(self.after_res_g):
-            for edge in v:
-                if edge.fwd:
-                    self.fwd_g[i].append((edge.to, edge.cap))
+            for e in v:
+                if e.fwd:
+                    self.fwd_g[i].append((e.to, e.cap))
         
         return self.fwd_g
     
@@ -34,7 +33,7 @@ class MinStCut:
         return
     
     def stack_dfs(self, s:int):
-        S, T = {s}, set()
+        S,T = {s}, set()
         stack = [s]
         n = len(self.fwd_g)
         visited = [False] * n
@@ -49,10 +48,10 @@ class MinStCut:
                     S.add(nxt)
         T = set(range(n)) - S
         
-        return S, T
+        return S,T
 
     def bfs(self, s:int):
-        S, T ={s}, set()
+        S,T ={s}, set()
         deq = deque([s])
         n = len(self.fwd_g)
         visited = [False] * n
@@ -67,7 +66,7 @@ class MinStCut:
                     S.add(nxt)
         T = set(range(n)) - S
         
-        return S, T
+        return S,T
     
     # 最小カット辺集合
     def min_st_cut_edges(self, s:int):

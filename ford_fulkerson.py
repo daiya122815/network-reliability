@@ -52,9 +52,9 @@ class FordFulkerson:
         while cur != s:
             
             nxt, idx = prv[cur]
-            edge = self.res_g[nxt][idx]
-            edge.cap -= f
-            self.res_g[edge.to][edge.rev].cap += f
+            e = self.res_g[nxt][idx]
+            e.cap -= f
+            self.res_g[e.to][e.rev].cap += f
 
             cur = nxt
 
@@ -69,16 +69,16 @@ class FordFulkerson:
             cur = stack.pop()
             
             nei = []
-            for idx, edge in enumerate(self.res_g[cur]):
-                if not visited[edge.to] and edge.cap > 0:
-                    visited[edge.to] = True
-                    nei.append(edge.to)
+            for idx,e in enumerate(self.res_g[cur]):
+                if not visited[e.to] and e.cap > 0:
+                    visited[e.to] = True
+                    nei.append(e.to)
                     
-                    prv[edge.to] = (cur, idx)
+                    prv[e.to] = (cur, idx)
 
-                    bottleneck[edge.to] = min(bottleneck[cur], edge.cap)
+                    bottleneck[e.to] = min(bottleneck[cur], e.cap)
 
-                    if edge.to == t:
+                    if e.to == t:
                         f = bottleneck[t]
                         self.back_track(prv, s, t, f) # 残余グラフ更新
                         return f
@@ -94,8 +94,8 @@ class FordFulkerson:
     def max_flow(self, n:int, edges:list, s:int, t:int):
        
         # 各辺の入力
-        for a,b,c in edges:
-            self.add_edge(a,b,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
+        for u,v,c in edges:
+            self.add_edge(u,v,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
         
         before_res_g = deepcopy(self.return_residual_graph()) # オブジェクトを新たな変数にコピー
 

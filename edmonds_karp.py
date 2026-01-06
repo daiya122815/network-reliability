@@ -27,35 +27,15 @@ class EdmondsKarp:
     # 残余グラフを返す
     def return_residual_graph(self):
         return self.res_g
-
-    # s,tまでのパスを探索し、流せる分だけフローを流す
-    def dfs(self, visited:list, cur:int, t:int, f:int):
-        visited[cur] = True
-        if cur == t:
-            return f
-        
-        for nxt in self.res_g[cur]:
-            if not visited[nxt.to] and nxt.cap > 0:
-                flow = self.dfs(visited, nxt.to, t, min(f,nxt.cap))
-                
-                # cur == tで更新するフローが確定されたのちに実行される
-                if flow == 0:
-                    continue
-                nxt.cap -= flow
-                self.res_g[nxt.to][nxt.rev].cap += flow
-                return flow
-        
-        # 更新可能フロー（すべての頂点を辿り、更新フローが0）が見つからなくなった場合の返り値
-        return 0
     
     def back_track(self, prv, s:int, t:int, f:int):
         cur = t
         while cur != s:
             
-            nxt, idx = prv[cur]
-            edge = self.res_g[nxt][idx]
-            edge.cap -= f
-            self.res_g[edge.to][edge.rev].cap += f
+            nxt,idx = prv[cur]
+            e = self.res_g[nxt][idx]
+            e.cap -= f
+            self.res_g[e.to][e.rev].cap += f
 
             cur = nxt
 
@@ -69,16 +49,16 @@ class EdmondsKarp:
         while deq:
             cur = deq.popleft()
             
-            for idx, edge in enumerate(self.res_g[cur]):
-                if not visited[edge.to] and edge.cap > 0:
-                    visited[edge.to] = True
-                    deq.append(edge.to)
+            for idx,e in enumerate(self.res_g[cur]):
+                if not visited[e.to] and e.cap > 0:
+                    visited[e.to] = True
+                    deq.append(e.to)
                     
-                    prv[edge.to] = (cur, idx)
+                    prv[e.to] = (cur, idx)
 
-                    bottleneck[edge.to] = min(bottleneck[cur], edge.cap)
+                    bottleneck[e.to] = min(bottleneck[cur], e.cap)
 
-                    if edge.to == t:
+                    if e.to == t:
                         f = bottleneck[t]
                         self.back_track(prv, s, t, f)
                         return f
@@ -90,8 +70,8 @@ class EdmondsKarp:
     def max_flow(self, n:int, edges:list, s:int, t:int):
        
         # 各辺の入力
-        for a,b,c in edges:
-            self.add_edge(a,b,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
+        for u,v,c in edges:
+            self.add_edge(u,v,c) # 逆辺も追加し、各頂点は、構造体（num,cap,rev）を持つ
         
         before_res_g = deepcopy(self.return_residual_graph()) # オブジェクトを新たな変数にコピー
 
