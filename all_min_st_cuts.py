@@ -1,10 +1,10 @@
 class AllMinStCuts:
 
-    def __init__(self, s_idx:int, t_idx:int, dag:list[list[int]], inv_dag:list[list[int]]):
+    def __init__(self, s_idx:int, t_idx:int, dag:list[list[int]], rev_dag:list[list[int]]):
         self.s_idx = s_idx
         self.t_idx = t_idx
         self.dag = dag
-        self.inv_dag = inv_dag
+        self.rev_dag = rev_dag
 
     def stack_dfs(self, s:int, g:list[list[int]]):
         stack = [s]
@@ -26,7 +26,7 @@ class AllMinStCuts:
         # s_visited s_idxから到達可能頂点
         # tも同様
         s_visited = self.stack_dfs(self.s_idx, self.dag)
-        t_visited = self.stack_dfs(self.t_idx, self.inv_dag) # inv_dag（dagと逆方向）
+        t_visited = self.stack_dfs(self.t_idx, self.rev_dag) # rev_dag（dagと逆方向）
 
         # sから到達可能頂点は、必ず解に含む
         # tから到達可能頂点は、含んではならない
@@ -34,7 +34,7 @@ class AllMinStCuts:
         exclude = {v for v, ok in enumerate(t_visited) if ok}
 
         # sとtの両方から到達不可能である頂点を取り出す
-        sol_cand_vtx = list()
+        sol_cand_vtx = []
         for v, (s,t) in enumerate(zip(s_visited, t_visited)):
             if not (s or t):
                 sol_cand_vtx.append(v)
