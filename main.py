@@ -1,12 +1,8 @@
 import sys # 入力と再帰回数上限
-
 # グラフ描画
 import networkx as nx 
 import matplotlib.pyplot as plt
-
 import numpy as np # 重みのランダム生成
-
-from copy import deepcopy # オブジェクトのコピー
 
 # 同階層のファイルの読み込み
 from ford_fulkerson import *
@@ -40,13 +36,14 @@ def generate_random_graph(n):
 
 # グラフ描画
 def draw_graph(g):
-    pos = nx.spring_layout(g,seed=42) # sl_seed
-    
+    # pos = nx.spring_layout(g,seed=42) # sl_seed
+    pos = nx.nx_pydot.graphviz_layout(g)
+
     node_labels = {node:node for node in g.nodes()} # ノードラベルを0-indexに
     # node_labels = {node:node+1 for node in g.nodes()} # ノードラベルを1-indexに
     nx.draw(g,pos=pos,with_labels=True,labels=node_labels,arrows=True) # ノード描画
 
-    edge_labels = nx.get_edge_attributes(g,"weight")
+    edge_labels = nx.get_edge_attributes(g,"capacity")
     nx.draw_networkx_edge_labels(g,pos=pos,edge_labels=edge_labels) # 辺ラベル描画
 
     plt.show()
@@ -58,7 +55,7 @@ def ff_max_flow(n:int, edges:list, s:int, t:int):
     return max_flow, before_res_g, after_res_g
 
 def ek_max_flow(n:int, edges:list, s:int, t:int):
-    ek = EdmondsKarp(n) # インスタンス生成
+    ek = EdmondsKarp(n)
     max_flow, before_res_g, after_res_g = ek.max_flow(n, edges, s, t)
     return max_flow, before_res_g, after_res_g
 
@@ -98,8 +95,8 @@ def decompose_scc(after_res_g):
     scc, dag, topological_dag = scc.decompose()
     return scc, dag, topological_dag
 
-def all_min_st_cuts(s_order, t_order, dag, inv_dag):
-    amsc = AllMinStCuts(s_order, t_order, dag, inv_dag)
+def all_min_st_cuts(s_idx, t_idx, dag, inv_dag):
+    amsc = AllMinStCuts(s_idx, t_idx, dag, inv_dag)
     all_min_st_cuts = amsc.solver()
     return all_min_st_cuts
 
@@ -110,46 +107,13 @@ def zdd_all_min_st_cuts():
 
 def main():
     # 入力
+    # file_name = input("networksのテキストファイル名を拡張子を含めて入力してください ")
     # 固定グラフ
-    edges = [
-    (0,1,3),
-    (0,2,10),
-    (0,3,16),
-    (0,4,6),
-    (1,5,5),
-    (2,1,2),
-    (2,5,3),
-    (2,9,4),
-    (2,7,2),
-    (2,3,1),
-    (3,7,3),
-    (4,3,1),
-    (4,7,5),
-    (4,8,6),
-    (5,9,9),
-    (6,5,2),
-    (6,7,4),
-    (6,11,2),
-    (7,3,3),
-    (8,7,4),
-    (8,12,3),
-    (8,13,4),
-    (9,13,12),
-    (10,6,7),
-    (10,9,2),
-    (10,13,4),
-    (11,8,3),
-    (11,10,1),
-    (11,12,2),
-    (11,13,11),
-    (12,13,3)
-    ]
-
     edges = []
     n,m = -1,-1
     s,t = -1,-1
     ok = True
-    with open('graphs/pq.txt') as f:
+    with open("networks/" + "exnet.txt") as f:
         for line in f:
             if line[0] == '#' or not line:
                 continue
@@ -162,8 +126,6 @@ def main():
                     s,t = a[0],a[1]
             else: 
                 edges.append(a)
-    # print(edges)
-    print(n,m,s,t)
 
     # ランダムグラフ
     # n = 100
@@ -172,27 +134,37 @@ def main():
     # edges =  [(a,b,data["weight"]) for a,b,data in g.edges(data=True)]
     # edges = [(a,b,weight) for a,b,weight in g.edges(data="weight")]
 
-    # n = 14
-    # m = len(edges)
-    # # 容量付きグラフを作成
-    # g = nx.DiGraph()
-    # for a,b,capacity in edges :
-    #     g.add_edge(a,b,capacity=capacity)
+    g = nx.DiGraph()
+    for u,v,c in edges:
+        g.add_edge(u,v,capacity=c)
+    # draw_graph(g)
 
-    # s,t = 9, 51
-
-    mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
-    print("max_flow =", mf)
-    mf, before_res_g, after_res_g = ek_max_flow(n, edges, s, t)
-    print("max_flow =", mf)
+    # mf, before_res_g, after_res_g = ff_max_flow(n, edges, s, t)
+    # print("max_flow =", mf)
+    # mf, before_res_g, after_res_g = ek_max_flow(n, edges, s, t)
+    # print("max_flow =", mf)
     mf, before_res_g, after_res_g = dinic_max_flow(n, edges, s, t)
     print("max_flow =", mf)
+    arg = nx.DiGraph()
+    for u,adj in enumerate(after_res_g):
+        for e in adj:
+            v,c = e.to,e.cap
+            # if e.cap == 0:
+            #     arg.add_edge(u,v,capacity=c)
+            # else:
+            #     arg.add_edge(u,v)
+            arg.add_edge(u,v,capacity=c)
+    # draw_graph(arg)
+    pos = nx.nx_pydot.graphviz_layout(g)
+    latex_code = nx.to_latex(arg, pos=pos, as_document=True)
+    # print(latex_code)
+
     # print("after_res_g =", after_res_g)
     # mf,st_paths = zdd_max_flow(n,edges)
     # print("st_paths.len() =",st_paths.len())
 
     min_st_cut_edges = min_st_cut(after_res_g, s)
-    # print("min_st_cut_edges =", min_st_cut_edges)
+    print("min_st_cut_edges =", min_st_cut_edges)
 
     # PQ構造における関係Rを満たす辺のみからなる部分グラフ
     sub_after_res_g = [[] for _ in range(n)]
@@ -201,33 +173,31 @@ def main():
             if edge.cap == 0:
                 continue
             sub_after_res_g[i].append(edge.to)
-    # print("sub_after_res_g =", sub_after_res_g)
 
     scc, dag, topological_dag = decompose_scc(sub_after_res_g)
     print("scc =", len(scc), scc)
+    for i,adj in enumerate(scc):
+        print(i,":",adj)
     print("dag = ", dag)
     print("topological_dag =", topological_dag)
-    
-    zddmf, st_paths = zdd_max_flow(n, edges, s, t)
-    # print("zdd_max_flow =", zddmf, st_paths)
 
     # sを含む連結成分のインデックス
-    s_order = -1; t_order = -1
+    s_idx = -1; t_idx = -1
     for i, adj in enumerate(scc):
         adj = set(adj)
         if s in adj:
-            s_order = i
+            s_idx = i
         if t in adj:
-            t_order = i
-    # print(s_order, t_order)
+            t_idx = i
+    # print(s_idx, t_idx)
 
     inv_dag = [[] for _ in range(len(dag))]
-    for i, adj in enumerate(dag):
-        for j in adj:
-            inv_dag[j].append(i)
+    for u,adj in enumerate(dag):
+        for v in adj:
+            inv_dag[v].append(u)
     # print("inv_dag =", inv_dag)
     
-    # ans = all_min_st_cuts(s_order, t_order, dag, inv_dag)
+    # ans = all_min_st_cuts(s_idx, t_idx, dag, inv_dag)
     # print("ans =", ans)
     # print(len(ans))
 
@@ -236,12 +206,18 @@ def main():
 
     # zdd_all_st_min_cuts = zdd_all_min_st_cuts()
     # print(zdd_all_st_min_cuts)
-    # draw_graph(g)
 
-    zamsc = ZddAllMinStCuts(s_order, t_order, dag, inv_dag)
+    g = nx.DiGraph()
+    for u,nei in enumerate(dag):
+        for v in nei:
+            g.add_edge(u,v)
+    draw_graph(g)
+
+    zamsc = ZddAllMinStCuts(s_idx, t_idx, dag, inv_dag)
     ok = zamsc.build_zdd(dag, topological_dag)
-    for e in ok:
-        print(e)
+    # for e in ok:
+    #     print(e)
+    print(len(ok))
 
 if __name__ == "__main__":
     main()
